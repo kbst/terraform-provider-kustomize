@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"sigs.k8s.io/kustomize/api/filesys"
 	"sigs.k8s.io/kustomize/api/krusty"
 	"sigs.k8s.io/kustomize/api/resid"
@@ -118,12 +118,14 @@ func getKustomizeOptions(d *schema.ResourceData) (opts *krusty.Options) {
 
 	opts = krusty.MakeDefaultOptions()
 
-	kOpts := d.Get("kustomize_options").(map[string]interface{})
+	o := convertMapStringInterfaceToMapStringString(
+		convertListInterfaceFirstItemToMapStringInterface(
+			d.Get("kustomize_options").([]interface{}),
+		),
+	)
 
-	if kOpts["load_restrictor"] != nil {
-		if kOpts["load_restrictor"].(string) == "none" {
-			opts.LoadRestrictions = types.LoadRestrictionsNone
-		}
+	if o["load_restrictor"] == "none" {
+		opts.LoadRestrictions = types.LoadRestrictionsNone
 	}
 
 	return opts

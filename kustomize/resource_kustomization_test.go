@@ -6,8 +6,8 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	k8smetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -64,7 +64,7 @@ func TestAccResourceKustomization_basic(t *testing.T) {
 			//
 			// Test state import
 			{
-				ResourceName:      "kustomization_resource.test[\"~G_v1_Namespace|~X|test-basic\"]",
+				ResourceName:      "kustomization_resource.ns",
 				ImportStateId:     "~G_v1_Namespace|~X|test-basic",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -172,7 +172,7 @@ func TestAccResourceKustomization_updateInplace(t *testing.T) {
 			//
 			// Test state import
 			{
-				ResourceName:      "kustomization_resource.test[\"~G_v1_Namespace|~X|test-update-inplace\"]",
+				ResourceName:      "kustomization_resource.ns",
 				ImportStateId:     "~G_v1_Namespace|~X|test-update-inplace",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -304,7 +304,7 @@ func TestAccResourceKustomization_updateRecreate(t *testing.T) {
 			//
 			// Test state import
 			{
-				ResourceName:      "kustomization_resource.test[\"~G_v1_Namespace|~X|test-update-recreate\"]",
+				ResourceName:      "kustomization_resource.ns",
 				ImportStateId:     "~G_v1_Namespace|~X|test-update-recreate",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -433,7 +433,7 @@ func TestAccResourceKustomization_crd(t *testing.T) {
 			//
 			// Test state import
 			{
-				ResourceName:      "kustomization_resource.test[\"apiextensions.k8s.io_v1_CustomResourceDefinition|~X|clusteredcrds.test.example.com\"]",
+				ResourceName:      "kustomization_resource.clusteredcrd",
 				ImportStateId:     "apiextensions.k8s.io_v1_CustomResourceDefinition|~X|clusteredcrds.test.example.com",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -501,7 +501,7 @@ func TestAccResourceKustomization_webhook(t *testing.T) {
 			//
 			// Test state import
 			{
-				ResourceName:      "kustomization_resource.test[\"admissionregistration.k8s.io_v1_ValidatingWebhookConfiguration|~X|pod-policy.example.com\"]",
+				ResourceName:      "kustomization_resource.webhook",
 				ImportStateId:     "admissionregistration.k8s.io_v1_ValidatingWebhookConfiguration|~X|pod-policy.example.com",
 				ImportState:       true,
 				ImportStateVerify: true,

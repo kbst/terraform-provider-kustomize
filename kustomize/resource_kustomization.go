@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"sigs.k8s.io/kustomize/api/resid"
 
@@ -180,7 +180,7 @@ func kustomizationResourceRead(d *schema.ResourceData, m interface{}) error {
 	return nil
 }
 
-func kustomizationResourceDiff(d *schema.ResourceDiff, m interface{}) error {
+func kustomizationResourceDiff(ctx context.Context, d *schema.ResourceDiff, m interface{}) error {
 	client := m.(*Config).Client
 	mapper := m.(*Config).Mapper
 

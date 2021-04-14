@@ -2,11 +2,12 @@ package kustomize
 
 import (
 	"fmt"
+	"io/ioutil"
 	"path/filepath"
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/stretchr/testify/assert"
 	"sigs.k8s.io/kustomize/api/filesys"
 	"sigs.k8s.io/kustomize/api/konfig"
@@ -587,7 +588,7 @@ data "kustomization_overlay" "test" {
 
 	patches {
 		path = "test_kustomizations/_test_files/deployment_patch_env.yaml"
-		target = {
+		target {
 			label_selector = "app=test"
 		}
 	}
@@ -598,7 +599,7 @@ data "kustomization_overlay" "test" {
 			  path: /spec/rules/0/http/paths/0/path
 			  value: /newpath
 		EOF
-		target = {
+		target {
 			group = "networking.k8s.io"
 			version = "v1beta1"
 			kind = "Ingress"
@@ -742,12 +743,12 @@ data "kustomization_overlay" "test" {
 
 	vars {
 		name = "TEST_VAR_NAMESPACE"
-		obj_ref = {
+		obj_ref {
 			api_version = "v1"
 			kind = "Service"
 			name = "test"
 		}
-		field_ref = {
+		field_ref {
 			field_path = "metadata.namespace"
 		}
 	}
@@ -758,7 +759,7 @@ data "kustomization_overlay" "test" {
 			  path: /spec/template/spec/containers/0/env
 			  value: [{"name": "TESTENV", "value": "$(TEST_VAR_NAMESPACE)"}]
 		EOF
-		target = {
+		target {
 			group = "apps"
 			version = "v1"
 			kind = "Deployment"
@@ -815,9 +816,13 @@ func TestDataSourceKustomizationOverlay_module(t *testing.T) {
 }
 
 func testKustomizationOverlayConfig_module() string {
-	absPath, _ := filepath.Abs("test_module")
-	modulePath := filepath.ToSlash(absPath)
-	return fmt.Sprintf(`
+	moduleAbsPath, _ := filepath.Abs("test_module")
+	testKustomizationsAbsPath, _ := filepath.Abs("test_kustomizations")
+
+	modulePath := filepath.ToSlash(moduleAbsPath)
+	testKustomizationsPath := filepath.ToSlash(testKustomizationsAbsPath)
+
+	config := fmt.Sprintf(`
 module "test" {
 	source = %q
 
@@ -856,7 +861,7 @@ module "test" {
 
 	patches = [
 		{
-			path = "%s/../test_kustomizations/_test_files/deployment_patch_env.yaml"
+			path = "%s/_test_files/deployment_patch_env.yaml"
 			patch = null
 			target = {}
 		}, {
@@ -905,5 +910,9 @@ output "check_cm" {
 output "check_s" {
 	value = module.test.kustomization.manifests["~G_v1_Secret|test-module|tp-os-ts-8226t8dd99"]
 }
-`, modulePath, modulePath)
+`, modulePath, testKustomizationsPath)
+
+	ioutil.WriteFile("/tmp/test.tf", []byte(config), 0644)
+
+	return config
 }
